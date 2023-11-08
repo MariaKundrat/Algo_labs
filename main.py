@@ -1,51 +1,35 @@
-def can_feed_hamsters(s, c, hamsters, mid):
-    hamsters.sort(key=lambda x: (x[1]))
-    total_food = 0
-
-    for i in range(mid):
-        food_needed = hamsters[i][0] + i * hamsters[i][1]
-        total_food += food_needed
-
-    return total_food
+class BinaryTree:
+    def __init__(self, value, left=None, right=None, parent=None):
+        self.value = value
+        self.left = left
+        self.right = right
+        self.parent = parent
 
 
-def max_hamsters(s, c, hamsters):
-    left, right = 0, c
-    result = 0
-
-    while left <= right:
-        mid = left + (right - left)
-        if can_feed_hamsters(s, c, hamsters, mid) < s:
-            result = mid
-            left = mid + 1
-        else:
-            right = mid - 1
-
-    return result
+    def __str__(self):
+        return f'BinaryTree: {self.value}, {self.left}, {self.right}, {self.parent}'
 
 
-def total_food_needed(hamsters):
-    total_food = 0
-
-    for i in range(len(hamsters)):
-        food_needed = hamsters[i][0] + hamsters[i][1] * (len(hamsters)-1)
-        total_food += food_needed
-
-    return total_food
+def find_func(tree: BinaryTree, node: BinaryTree) -> BinaryTree:
+    if node and node.right:
+        return get_right_child(node.right, node.value)
+    else:
+        return get_left_child(node, node.value)
 
 
-s = 35
-c = 4
-hamsters = [[1, 2], [3, 4], [5, 6], [7, 8]]
-print(max_hamsters(s, c, hamsters))
-print(total_food_needed(hamsters))
+def get_right_child(node: BinaryTree, target_value) -> BinaryTree:
+    current_node = node
+    while current_node:
+        if current_node.value > target_value:
+            return current_node
+        current_node = current_node.right
+    return None
 
-s = 19
-c = 4
-hamsters = [[5, 0], [2, 2], [1, 4], [5, 1]]
-print(max_hamsters(s, c, hamsters))
 
-s = 2
-c = 2
-hamsters = [[1, 50000], [1, 60000]]
-print(max_hamsters(s, c, hamsters))
+def get_left_child(node: BinaryTree, target_value) -> BinaryTree:
+    current_node = node
+    while current_node.parent:
+        if current_node.parent.value > target_value:
+            return current_node.parent
+        current_node = current_node.parent
+    return None

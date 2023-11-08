@@ -1,32 +1,52 @@
+from main import BinaryTree, find_func
 import unittest
-from main import max_hamsters
 
 
-class TestMaxHamsters(unittest.TestCase):
+class TestBinaryTree(unittest.TestCase):
+    def test_find_successor(self):
+        root = BinaryTree(10)
 
-    def test_case_1(self):
-        s = 7
-        c = 3
-        hamsters = [[1, 2], [2, 2], [3, 1]]
-        self.assertEqual(max_hamsters(s, c, hamsters), 2)
+        root.left = BinaryTree(5)
+        root.left.parent = root
 
-    def test_case_2(self):
-        s = 19
-        c = 4
-        hamsters = [[5, 0], [2, 2], [1, 4], [5, 1]]
-        self.assertEqual(max_hamsters(s, c, hamsters), 3)
+        root.left.left = BinaryTree(3)
+        root.left.left.parent = root.left
 
-    def test_case_3(self):
-        s = 2
-        c = 2
-        hamsters = [[1, 50000], [1, 60000]]
-        self.assertEqual(max_hamsters(s, c, hamsters), 1)
+        root.left.right = BinaryTree(7)
+        root.left.right.parent = root.left
 
-    def test_none_case(self):
-        s = 0
-        c = 10
-        hamsters = [[1, 1]] * 10
-        self.assertEqual(max_hamsters(s, c, hamsters), 0)
+        root.right = BinaryTree(15)
+        root.right.parent = root
+
+        root.right.right = BinaryTree(20)
+        root.right.right.parent = root.right
+
+        root.right.right.left = BinaryTree(23)
+        root.right.right.left.parent = root.right.right
+
+        value_to_find = 23
+        node_to_find = self.find_node_with_value(root, value_to_find)
+
+        if node_to_find is not None:
+            successor = find_func(root, node_to_find)
+            if successor:
+                print("Next: " + str(successor.value))
+            else:
+                print("No next")
+        else:
+            print(f"Value {value_to_find} not found in the tree.")
+
+    def find_node_with_value(self, root, value):
+        stack = []
+        stack.append(root)
+        while stack:
+            current_node = stack.pop()
+            if current_node.value == value:
+                return current_node
+            if current_node.left:
+                stack.append(current_node.left)
+            if current_node.right:
+                stack.append(current_node.right)
 
 
 if __name__ == '__main__':
