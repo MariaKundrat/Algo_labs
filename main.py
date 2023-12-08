@@ -1,74 +1,46 @@
+from collections import defaultdict
 from queue import Queue
 
-row = [2, 2, -2, -2, 1, 1, -1, -1]
-col = [-1, 1, 1, -1, 2, -2, 2, -2]
-
-
-def generate_possible_moves(current_pos, size):
-    possible_moves = []
-    for i in range(8):
-        new_pos = (current_pos[0] + row[i], current_pos[1] + col[i])
-        if (0 <= new_pos[0] < size) and (0 <= new_pos[1] < size):
-            possible_moves.append(new_pos)
-    return possible_moves
-
-
-def build_graph(size: int, start: tuple, end: tuple):
-    global graph
-    graph = {start: []}
-    queue = Queue()
+def bfs(graph, start):    
+    visited = set()
+    queue = Queue()   
     queue.put(start)
-    visited = set()
-
+    visited.add(start)    
+    reachable_gas_storages = set()
     while not queue.empty():
-        current_pos = queue.get()
-
-        for new_pos in generate_possible_moves(current_pos, size):
-            if new_pos not in visited:
-                graph[current_pos].append(new_pos)
-                if new_pos not in graph:
-                    graph[new_pos] = []
-                queue.put(new_pos)
-                visited.add(new_pos)
-                if new_pos == end:
-                    return graph
-
-
-def min_distance(graph, start, end) -> int:
-    if start not in graph.keys() or end not in graph.keys():
-        return -1
-
-    visited = set()
-    queue = Queue()
-    queue.put((start, 0, [start]))
-    moves = 0
-
-    while not queue.empty():
-        current_pos, depth, path = queue.get()
-        visited.add(current_pos)
-
-        for neighbor in graph[current_pos]:
+        current_node = queue.get()
+        for neighbor in graph.get(current_node, []):            
             if neighbor not in visited:
-                if neighbor == end:
-                    path.append(neighbor)
-                    print("General:", moves)
-                    print("Coordinates:", path)
-                    return depth + 1
-                queue.put((neighbor, depth + 1, path + [neighbor]))
-                moves += 1
+                visited.add(neighbor)                
+                queue.put(neighbor)
+                reachable_gas_storages.add(neighbor)
+    return reachable_gas_storages
 
-    return 0
+def accessible_gas_storages(pipelines, cities, gas_storages):
+    graph_dic = defaultdict(list)
+    result = defaultdict(list)
+
+    for key, val in pipelines:        
+        graph_dic[key].append(val)
+    
+    for gas_storage in gas_storages:
+        reachable_cities = bfs(graph_dic, gas_storage)
+        unreachable_cities = [city for city in cities if city not in reachable_cities]
+        
+        result[gas_storage] = unreachable_cities
+    
+    return result
 
 
-if __name__ == '__main__':
-    with open("input.txt", "r") as file:
-        size_of_desk = int(file.readline())
-        start_point = eval(file.readline())
-        end_point = eval(file.readline())
+with open("input.txt", "r", encoding="UTF-8") as f:    
+    pipelines_file = eval(f.readline())
+    cities_file = eval(f.readline())    
+    gas_file = eval(f.readline())
+is_reachable = accessible_gas_storages(pipelines_file, cities_file, gas_file)
+print(is_reachable)
 
-    graph = build_graph(size_of_desk, start_point, end_point)
-    min_dist = min_distance(graph, start_point, end_point)
-    print("Minimum:", min_dist)
-
-    with open("output.txt", "w") as f:
-        f.write(str(min_dist))
+with open("result.txt", "w", encoding="UTF-8") as f:    
+    for key, value in is_reachable.items():
+        f.write(f"{key}:\n")        
+        for city in value:
+            f.write(f"\t{city}\n")      
